@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <!-- define header -->
+    <head>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>TX Counties Covid-19 Predictions</title>
+
+        <!-- Bring in our bootstrap stylesheet -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+        <!-- leaflet JS & CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin=""/>
+
+        <!-- d3 JavaScript -->
+        <script src="https://d3js.org/d3.v6.min.js"></script>
+
+        <!-- our CSS -->
+        <link rel="stylesheet" href="../static/css/style.css">
+
+    </head>
+
+    <body class= "bg-taupe">
+        <!-- container all -->
+        <div class="container-fluid">
+
+            <!-- navbar -->
+            <nav class ="navbar navbar-expand-lg fixed-top navbar-dark bg-green font-taupe">
+                
+                <!-- container for nav bar content -->
+                <div class= "container-fluid">
+                    <a href="index.html" class=" font-30 navbar-brand mr-auto font-taupe">Texas County-Level Covid-19 Projections</a>
+                    <i class="fab fa-home-square"></i><!--TODO: ENSURE FONTAWESOME ICON LIBRARY IS WORKING-->
+                    
+                    <!-- button to show or hide nav items?? -->
+                    <button class= "navbar-toggler" type="button" data-toggle="collapse" 
+                        data-target="#navbarResponsive" aria-controls="navbarResponsive"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span class= "navbar-toggler-icon"></span>
+                    </button>
+                </div>
+            </nav> 
+            <!-- /. navbar -->
+
+            <br>
+
+            <!-- dropdown county selector row -->
+            <div class= "row first-row">
+                <div class= "col-lg-3">
+                    <!-- dropdown  -->
+                    <div class="well w-300">
+                        <h5>Choose a County</h5>
+                        <select id="selDataset" onchange="optionChanged(this.value)"></select>
+                    </div>
+                </div>
+                <div class = "col-lg-6">
+                    <div id = "countyHeader" class = "bg-taupe rd-corner font-green font-30 text-center"></div>
+                </div>
+                <div class= "col-lg-3"></div>
+            </div>
+            <!-- /.dropdown county selector row -->
+
+
+            <!-- START header row  -->
+            <div class= "row">
+                <!-- cases  header -->
+                <div class = "col-lg-4">
+                    <h3 class = "Page-Header rd-corner bg-blue font-taupe text-center">County Cases</h3>
+                </div>
+                <!-- deaths  header -->
+                <div class = "col-lg-4">
+                    <h3 class = "Page-Header rd-corner bg-blue font-taupe text-center">County Deaths</h3>
+                </div>
+                <!-- locations header -->
+                <div class = "col-lg-4">
+                    <!-- header for Mobility Data -->
+                    <h3 class = "Page-Header rd-corner bg-blue font-taupe text-center">County Mobility Data</h3>
+                </div>
+            </div>
+            <!-- END headers row -->
+
+            <!-- START plots and charts row -->
+            <div class= "row">
+                <!-- START CASES -->
+                <div class= "col-lg-4">
+                    <div class= "card-body">
+                        <h4 class= "card-title"> Covid-19 Cases </h4>
+                        <p class = "card-text"> A SARIMA machine learning model was used for projections </p>
+                    </div>
+                    <div id='casesPlot' class = "card-img-bottom responsive-plot rd-corner" ></div>
+                </div>
+                <!-- END CASES -->
+
+                <!-- START DEATHS -->
+                <div class= "col-lg-4">
+                    <div class= "card-body">
+                        <h4 class= "card-title"> Covid-19 Deaths </h4>
+                        <p class = "card-text"> A SARIMA machine learning model was used for projections </p>
+                    </div>
+                    <div id='deathsPlot' class = "card-img-bottom responsive-plot rd-corner"></div>
+                </div>  
+                <!-- END DEATHS -->
+
+                <!-- START MOBILITY -->
+                <div class= "col-lg-4">
+                    <!--Carousel Wrapper-->
+                    <div id="carousel-example-multi" class="carousel slide carousel-multi-item v-2" data-ride="carousel">
+
+                        <!--Controls-->
+                        <!-- <div class="controls-bottom">
+                            <a class="btn-floating" href="#carousel-example-multi" data-slide="prev"><i
+                                class="fas fa-chevron-left"></i></a>
+                            <a class="btn-floating" href="#carousel-example-multi" data-slide="next"><i
+                                class="fas fa-chevron-right"></i></a>
+                        </div> -->
+                        <!--/.Controls-->
+                    
+                        <!-- Indicators -->
+                        <ol class="carousel-indicators">
+                            <li data-target="#carousel-example-multi" data-slide-to="0" class="active"></li>
+                            <li data-target="#carousel-example-multi" data-slide-to="1"></li>
+                            <li data-target="#carousel-example-multi" data-slide-to="2"></li>
+                            <li data-target="#carousel-example-multi" data-slide-to="3"></li>
+                            <li data-target="#carousel-example-multi" data-slide-to="4"></li>
+                            <li data-target="#carousel-example-multi" data-slide-to="5"></li>
+                        </ol>
+                        <!--/.Indicators-->
+                    
+                        <!--Slides-->
+                        <div class="carousel-inner" role="listbox">
+                            
+                            <!--First slide-->
+                            <div class="carousel-item active">
+                                <div class= "col-lg-12">
+                                    <div class="card-body">
+                                        <h4 class="card-title">Workplace Mobility</h4>
+                                        <p class="card-text">Percent Change from pre-Covid-19 baseline</p>
+                                    </div>
+                                    <div id = "mobWork" class="card-img-bottom responsive-plot rd-corner" alt="Workplace Mobility"></div>
+                                </div>
+                            </div> 
+                            <!--END First slide-->
+                            
+                            <!-- Second slide -->
+                            <div class = "carousel-item">
+                                <div class= "col-lg-12">
+                                    <div class="card-body">
+                                        <h4 class="card-title">Residential Mobility</h4>
+                                        <p class="card-text">Percent Change from pre-Covid-19 baseline</p>
+                                    </div>
+                                    <div id = "mobRes" class="card-img-bottom responsive-plot rd-corner"alt="Residential Mobility"></div>
+                                </div>
+                            </div>
+                            <!-- END Second slide -->
+                        
+                            <!--Third slide-->
+                            <div class="carousel-item">
+                                <div class= "col-lg-12">
+                                    <div class="card-body">
+                                        <h4 class="card-title">Retail & Recreation Mobility</h4>
+                                        <p class="card-text">Percent Change from pre-Covid-19 baseline</p>
+                                    </div>
+                                    <div id = "mobRetail" class="card-img-bottom rd-corner responsive-plot" alt="Residential Mobility"></div>
+                                </div>
+                            </div>
+                            <!--END Third slide-->
+
+                            <!-- Fourth Slide -->
+                            <div class="carousel-item">
+                                <div class= "col-lg-12">
+                                    <div class="card-body">
+                                        <h4 class="card-title">Grocery & Pharmacy Mobility</h4>
+                                        <p class="card-text">Percent Change from pre-Covid-19 baseline</p>
+                                    </div>
+                                    <div id = "mobGroc" class="card-img-bottom rd-corner responsive-plot" alt="Residential Mobility"></div>
+                                </div>  
+                            </div>
+                            <!--/.Fourth slide-->
+                        
+                            <!--Fifth slide-->
+                            <div class="carousel-item">
+                                <div class= "col-lg-12">
+                                    <div class="card-body">
+                                        <h4 class="card-title">Parks Mobility</h4>
+                                        <p class="card-text">Percent Change from pre-Covid-19 baseline</p>
+                                    </div>
+                                    <div id = "mobParks" class="card-img-bottom rd-corner responsive-plot"alt="Residential Mobility"></div>
+                                </div>
+                            </div>
+                            <!--/.Fifth slide-->
+
+                            <!--Sixth slide-->
+                            <div class="carousel-item">
+                                <div class= "col-lg-12">
+                                    <div class="card-body">
+                                        <h4 class="card-title">Transit</h4>
+                                        <p class="card-text">Percent Change from pre-Covid-19 baseline</p>
+                                    </div>
+                                    <div id = "mobTransit" class="card-img-bottom rd-corner responsive-plot"alt="Residential Mobility"></div>
+                                </div>
+                            </div>
+                            <!--/.Sixth slide-->
+                        </div>
+                        <!--END Slides-->
+                    </div>
+                    <!-- END wrapper -->
+                </div>
+                <!-- end COL 4 -->
+            </div>
+            <!-- END plots and charts row -->
+
+
+            <!-- START Demographics and Location Headers Row -->
+            <div class= row>
+                <!-- location header
+                <div class= "col-lg-3">
+                    <h3 class = "Page-Header rd-corner bg-blue font-taupe text-center">County Location</h3>
+                </div>  -->
+
+                <!-- demographics header -->
+                <div class= "col-lg-12">
+                    <h3 class= "Page-Header rd-corner bg-blue font-taupe text-center"> County Demographics</h3>
+                </div>
+            </div>
+            <!-- END headers row -->
+
+            <!-- Start demographics and map row -->
+            <div class ="row">
+                <!-- start demographics cards -->
+                
+                <div class= "container-fluid mt-4">  
+                    
+                    <div class = "col-lg-12">
+                        <div class= "card-deck rd-corner bg-blue ">
+    
+                            <!-- pop. density card --> 
+                            <div class="card  col-lg-1 bg-green rd-corner text-center">
+                                <br>
+                                <div class="card-header bg-blue2 font-taupe">Density</div>
+                                <div class = "card-body rd-corner bg-green">
+                                    <p id= "density"class="card-text bg-green font-taupe"></p> 
+                                    <p class="card-text bg-green font-taupe">People per sq. mile</p>
+                                </div>
+                            </div>
+    
+                            <!-- percent poverty card -->
+                            <div class="card col-lg-1 bg-green rd-corner text-center">
+                                <br>
+                                <div class="card-header bg-blue2 font-taupe">Poverty</div>
+                                <div class = "card-body rd-corner bg-green">
+                                    <p class="card-text bg-green font-taupe" id= "poverty"></p>
+                                    <p class="card-text bg-green font-taupe">Percent population</p>
+                                </div>
+                            </div>
+    
+                            <!-- percent uninsured card -->
+                            <div class="card  col-lg-1 bg-green rd-corner text-center">
+                                <br>
+                                <div class="card-header bg-blue2 font-taupe">Uninsured</div>
+                                <div class = "card-body rd-corner bg-green">
+                                    <p class="card-text bg-green font-taupe "id= "insurance"></p>
+                                    <p class="card-text bg-green font-taupe">Percent population</p>
+                                </div>
+                            </div>
+                             <!-- med age card -->
+                             <div  class="card col-lg-2 bg-green rd-corner text-center">
+                                <br>
+                                <div class=" card-header bg-blue2 font-taupe">Median Age</div>
+                                <div class = "card-body rd-corner bg-green">
+                                    <p id= "age"class="card-text bg-green font-taupe"></p> 
+                                    <p class="card-text bg-green font-taupe">Years </p>
+                                </div>
+                            </div>
+    
+                            <!-- education card -->
+                            <div class="card  col-lg-2 bg-green rd-corner text-center">
+                                <br>
+                                <div class="card-header bg-blue2 font-taupe ">Education</div>
+                                <div class= "card-body rd-corner bg-green">
+                                    <p class="card-img bg-green"id= "education"></p>
+                                    <p class="card-text bg-green font-taupe">Percent population</p>
+                                </div>
+                            </div>
+
+                             <!-- race card -->
+                             <div class="card col-lg-5 bg-green rd-corner text-center">
+                                <br>
+                                <div class="card-header bg-blue2 font-taupe ">Race</div>
+                                <div class= "card-body rd-corner bg-green">
+                                    <p class="card-text bg-green font-taupe" id= "race"></p>
+                                    <p class="card-text bg-green font-taupe">Percent population</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end card deck -->
+                    </div>
+                    <!-- end wrapper -->
+                </div>
+                <!-- END col-9 -->
+            </div>
+            <!-- END demog and location charts row -->
+        </div>
+         <!-- end container all  --> 
+            
+        <!-- footer  -->
+        <footer class = "page-footer fixed-bottom navbar-expand-lg bg-green font-taupe" >
+
+                    <ul class= "list-unstyled list-inline text center">
+                        <li class= "list-inline-item">
+                            <p> Creators: Beth Emborsky, Brodie Armstrong, Ellen Rud Gentile</p>
+                        </li>
+                    </ul>
+        </footer>
+        <!-- END footer -->
+
+
+        <!-- ---------------------JS RESOURCES------------------------------ -->
+        <!-- --------------------------------------------------------------- -->
+        <!-- Plotly.js -->
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+        <!-- d3js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.js"></script>
+    
+        <!--jQuery-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+        <!-- popper -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+
+        <!-- bootstrap js-->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+
+        <!--INTERNAL JAVASCRIPT FILES -->
+        <script src= "../static/js/event_listeners.js"></script>
+
+    </body>
+
+</html>
